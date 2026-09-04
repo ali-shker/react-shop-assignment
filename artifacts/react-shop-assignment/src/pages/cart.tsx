@@ -1,0 +1,35 @@
+import { ArrowRight, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { EmptyState } from '@/components/data-states';
+import { PageEyebrow } from '@/components/site-layout';
+import { useCart } from '@/store/cart-redux';
+
+export default function Cart() {
+  const { items, count, subtotal, dispatch } = useCart();
+  const [submitted, setSubmitted] = useState(false);
+  const shipping = subtotal > 75 || subtotal === 0 ? 0 : 6;
+  const total = subtotal + shipping;
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitted(true);
+    dispatch({ type: 'cart/clear' });
+  }
+  return <div className="py-14 sm:py-20">
+    <div className="reveal flex flex-col gap-4 border-b border-[hsl(var(--border))] pb-10 sm:flex-row sm:items-end sm:justify-between"><div><PageEyebrow>Your considered picks</PageEyebrow><h1 className="mt-4 font-display text-[clamp(3.2rem,7vw,6.8rem)] leading-[.9] tracking-[-.06em] text-[hsl(var(--primary))]">Your bag<span className="text-[hsl(var(--accent))]">.</span></h1></div><span className="font-mono text-[.68rem] uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">{count} {count === 1 ? 'item' : 'items'}</span></div>
+    {submitted ? <div className="mt-12 rounded-[1.5rem] bg-[hsl(var(--primary))] px-7 py-16 text-center text-[hsl(var(--primary-foreground))] sm:px-12"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"><ShieldCheck size={26} /></div><h2 className="mt-6 font-display text-4xl">Order noted.</h2><p className="mx-auto mt-3 max-w-md leading-7 text-[hsl(var(--primary-foreground)/.72)]">Thanks for practicing the full checkout flow. Your little market haul is ready in spirit.</p><Link to="/products" data-testid="link-continue-shopping" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[hsl(var(--card))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] no-underline transition-transform hover:-translate-y-0.5">Continue browsing <ArrowRight size={16} /></Link></div> : items.length === 0 ? <div className="mt-12"><EmptyState title="Your bag is taking a quiet moment." body="Find something useful, beautiful, or both. Your picks will appear here." /><div className="mt-6 text-center"><Link to="/products" data-testid="link-empty-shop" className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--primary))] px-6 py-3 text-sm font-semibold text-[hsl(var(--primary-foreground))] no-underline">Browse the shelves <ArrowRight size={16} /></Link></div></div> : <div className="mt-10 grid gap-12 lg:grid-cols-[1.2fr_.8fr] lg:items-start">
+      <section aria-label="Cart items" className="space-y-3">
+        {items.map((item) => <article key={item.id} className="flex gap-4 rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 sm:gap-6 sm:p-5" data-testid={`row-cart-item-${item.id}`}>
+          <div className="grid h-28 w-24 shrink-0 place-items-center rounded-xl bg-[hsl(var(--muted))] p-3 sm:h-32 sm:w-28"><img src={item.image} alt={item.title} className="h-full w-full object-contain mix-blend-multiply" data-testid={`img-cart-item-${item.id}`} /></div>
+          <div className="flex min-w-0 flex-1 flex-col"><div className="flex justify-between gap-3"><div><p className="font-mono text-[.62rem] uppercase tracking-[.12em] text-[hsl(var(--muted-foreground))]">{item.category}</p><h2 className="mt-1 line-clamp-2 font-display text-xl leading-tight">{item.title}</h2></div><button type="button" onClick={() => dispatch({ type: 'cart/remove', id: item.id })} aria-label={`Remove ${item.title}`} data-testid={`button-remove-item-${item.id}`} className="h-8 shrink-0 rounded-full p-1.5 text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--destructive))]"><Trash2 size={17} /></button></div><div className="mt-auto flex items-end justify-between gap-3 pt-4"><div className="flex items-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--background))]"><button type="button" onClick={() => dispatch({ type: 'cart/setQuantity', id: item.id, quantity: item.quantity - 1 })} aria-label={`Decrease quantity of ${item.title}`} data-testid={`button-decrease-item-${item.id}`} className="grid h-8 w-8 place-items-center"><Minus size={14} /></button><span className="w-7 text-center font-mono text-xs" data-testid={`text-quantity-${item.id}`}>{item.quantity}</span><button type="button" onClick={() => dispatch({ type: 'cart/setQuantity', id: item.id, quantity: item.quantity + 1 })} aria-label={`Increase quantity of ${item.title}`} data-testid={`button-increase-item-${item.id}`} className="grid h-8 w-8 place-items-center"><Plus size={14} /></button></div><span className="font-mono text-sm font-medium text-[hsl(var(--primary))]">${(item.price * item.quantity).toFixed(2)}</span></div></div>
+        </article>)}
+      </section>
+      <form onSubmit={handleSubmit} className="rounded-[1.5rem] bg-[hsl(var(--secondary))] p-6 sm:p-8" data-testid="form-checkout">
+        <h2 className="font-display text-3xl">Make it yours</h2><p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">A pretend checkout, for a real React form.</p>
+        <div className="mt-7 space-y-4"><label className="block text-sm font-semibold">Email address<input type="email" required placeholder="you@example.com" data-testid="input-checkout-email" className="mt-2 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))]" /></label><label className="block text-sm font-semibold">Delivery address<input required placeholder="12 Market Lane" data-testid="input-checkout-address" className="mt-2 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))]" /></label></div>
+        <div className="my-7 space-y-3 border-y border-[hsl(var(--border))] py-5 text-sm"><div className="flex justify-between"><span className="text-[hsl(var(--muted-foreground))]">Subtotal</span><span className="font-mono">${subtotal.toFixed(2)}</span></div><div className="flex justify-between"><span className="text-[hsl(var(--muted-foreground))]">Delivery</span><span className="font-mono">{shipping ? `$${shipping.toFixed(2)}` : 'Free'}</span></div><div className="flex justify-between pt-2 font-semibold"><span>Total</span><span className="font-mono text-[hsl(var(--primary))]">${total.toFixed(2)}</span></div></div>
+        <button type="submit" data-testid="button-submit-checkout" className="flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--primary))] py-3.5 text-sm font-semibold text-[hsl(var(--primary-foreground))] transition-transform hover:-translate-y-0.5">Place pretend order <ArrowRight size={16} /></button><p className="mt-4 text-center font-mono text-[.6rem] uppercase tracking-[.12em] text-[hsl(var(--muted-foreground))]">No payment details needed</p>
+      </form>
+    </div>}
+  </div>;
+}
