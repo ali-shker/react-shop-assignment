@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "React Shop Assignment"
+description = "A polished product management and shopping application that demonstrates core React concepts including reusable components, props, hooks, context, Redux, routing, API data, forms, and responsive styling."
+version = "1.0.0"
+id = "artifacts/react-shop-assignment"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25409
+
+[services.development]
+run = "pnpm --filter @workspace/react-shop-assignment run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/react-shop-assignment", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/react-shop-assignment/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25409"
+BASE_PATH = "/"
