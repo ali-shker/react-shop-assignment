@@ -8,7 +8,7 @@ import Products from '@/pages/products';
 import Cart from '@/pages/cart';
 import About from '@/pages/about';
 import NotFound from '@/pages/not-found';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 function Router() {
   return (
@@ -36,9 +36,9 @@ function App() {
   return (
     <Provider store={cartStore}>
       <CartProvider>
-        <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <HashRouter>
           <SiteLayout><Router /></SiteLayout>
-        </BrowserRouter>
+        </HashRouter>
       </CartProvider>
     </Provider>
   );
